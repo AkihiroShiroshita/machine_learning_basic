@@ -42,8 +42,49 @@ train = df[tr.num,]
 test = df[-tr.num,]
 dim(train)
 dim(test)
-result3 = glm(death ~ age + bun, train, family = binomial)
-summary(result3)
-pre = ifelse(predict(result3, test) == 1, "Death", "Survive")
+model3 = glm(death ~ age + bun, train, family = binomial)
+summary(model3)
+pre.data <- test %>% select(age, bun)
+pre = ifelse(predict(model3, pre.data) > 0, "Death", "Survive") 
 tab = table(test$death, pre)
 tab
+1-(sum(diag(tab))/sum(tab))
+####Hierarchical clustering
+##R code below is written just for clarify (ex, including "id" variable etc)
+df_d = dist(df)
+round(df_d, 2)
+sngl = hclust(df_d, "single")
+sngl$merge
+plot(sngl)
+####K-means
+set.seed(1234)
+mx = as.matrix(df)
+result = kmeans(mx, 3)
+result
+result$withinss
+result$tot.withinss
+result$totss
+result$betweenss
+install.packages("maptools")
+library(maptools)
+plot(mx, col = result$cluster)
+points(result$centers, col = 1:5, pch = 8)
+install.packages("cluster")
+library(cluster)
+result = clusGap(df, kmeans, K.max = 10, B = 100, verbose = interactive())
+result
+plot(result)
+result_i = kmeans(mx, 3, iter.max = 500)
+install.packages("useful")
+library(useful)
+plot(result_i, data = mx)
+w.dist = dist(mx)^2
+sil = silhouette(result_i$cluster, w.dist)
+plot(sil)
+####EM algorithm
+install.packages("mclust")
+library(mclust)
+mclust = Mclust(df)
+summary(mclust)
+mclust$BIC
+plot(mclust)
