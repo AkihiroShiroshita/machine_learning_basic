@@ -88,3 +88,21 @@ mclust = Mclust(df)
 summary(mclust)
 mclust$BIC
 plot(mclust)
+#####Principal component analysis
+df_p <- df %>% select(age, bun, gender)
+R = cor(df_p)
+E = eigen(R)
+contribution=NULL
+accumulate=0
+i=0
+for (i in 1:3){
+  accumulate= E$values[i]/sum(E$values)+accumulate
+  contribution[i] =　paste ("第",i,"主成分","固有値",E$values[i]
+                           ,"寄与率",E$values[i]/sum(E$values)
+                           ,"累積寄与率",accumulate)
+}
+contribution
+plot(E$vectors[1:3, 1:2], xlab="First PC", ylab = "Second PC")
+result = prcomp(df_p, scale = TRUE)
+result$x
+biplot(result)
